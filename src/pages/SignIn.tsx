@@ -11,6 +11,7 @@ const SignIn: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,17 +23,27 @@ const SignIn: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     
     if (!username || !password) {
       setError('All fields are required');
+      setIsLoading(false);
       return;
     }
 
-    const result = await login(username, password);
-    if (result.success) {
-      navigate(from);
-    } else {
-      setError(result.message || 'Invalid username or password');
+    try {
+      const result = await login(username, password);
+      if (result.success) {
+        console.log("Login successful, redirecting...");
+        navigate(from);
+      } else {
+        setError(result.message || 'Invalid username or password');
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,6 +75,7 @@ const SignIn: React.FC = () => {
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={isLoading}
           />
         </div>
         
@@ -78,15 +90,17 @@ const SignIn: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
           />
         </div>
         
         <div className="flex items-center justify-between">
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             type="submit"
+            disabled={isLoading}
           >
-            Sign In
+            {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
           <Link
             className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"

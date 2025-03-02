@@ -2,7 +2,8 @@ import React, { createContext, useState, useEffect, useContext, ReactNode } from
 import axios from 'axios';
 
 interface User {
-  id: number;
+  id?: number;
+  userId?: number; // Add this to handle the API response
   username: string;
 }
 
@@ -33,7 +34,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const savedUser = localStorage.getItem('user');
     
     if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        // Only parse if savedUser is not null or undefined
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        // If there's an error parsing the user, clear the invalid data
+        console.error('Error parsing stored user data:', e);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
     }
     setLoading(false);
   }, []);
@@ -45,12 +54,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
       });
       
-      const { access_token, user } = response.data;
+      const { access_token, userId, username: responseUsername } = response.data;
+      
+      // Create a user object from the response
+      const userData = {
+        userId: userId,
+        id: userId, // Set id to userId for compatibility
+        username: responseUsername
+      };
       
       localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(userData));
       
-      setUser(user);
+      setUser(userData);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
@@ -65,10 +81,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (username: string, password: string) => {
     try {
-      await axios.post(`${API_URL}/auth/register`, {
+      const response = await axios.post(`${API_URL}/auth/register`, {
         username,
         password,
       });
+      
+      // If registration returns user data, we can log the user in immediately
+      if (response.data.access_token) {
+        const { access_token, userId, username: responseUsername } = response.data;
+        
+        const userData = {
+          userId: userId,
+          id: userId,
+          username: responseUsername
+        };
+        
+        localStorage.setItem('token', access_token);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        setUser(userData);
+      }
       
       return { success: true };
     } catch (error) {

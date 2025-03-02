@@ -1,13 +1,14 @@
+import React, { ErrorInfo, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Game from "./pages/Game";
-import Invite from "./pages/Invite";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Header from "./components/Header";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ScoreProvider } from "./contexts/ScoreContext";
 import InvitationHandler from './components/InvitationHandler';
+import Invite from './pages/Invite';
 
 const App = () => {
   return (

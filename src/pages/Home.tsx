@@ -1,12 +1,25 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useEffect } from 'react';
 
 const Home: React.FC = () => {
   const { user } = useAuth();
 
+  // Debug: log user state to console
+  useEffect(() => {
+    console.log('Current user state:', user);
+    console.log('localStorage token:', localStorage.getItem('token'));
+    console.log('localStorage user:', localStorage.getItem('user'));
+  }, [user]);
+
   return (
     <div className="text-center py-10">
       <h1 className="text-4xl font-bold mb-6">Welcome to the Game Portal</h1>
+      {user && (
+        <p className="text-xl mb-4 text-green-600">
+          Welcome back, {user.username}!
+        </p>
+      )}
       <p className="text-xl mb-8">Ready to play? Jump right in!</p>
       
       <div className="flex flex-col items-center justify-center gap-4">

@@ -16,10 +16,10 @@ const withMockDelay = <T>(data: T): Promise<T> => {
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse | null> => {
   try {
     const res = await axios.post<AuthResponse>(`${API_URL}/auth/login`, credentials);
-    const { token, user } = res.data;
+    const { access_token, user } = res.data;
     
     // Store token
-    setToken(token);
+    setToken(access_token);
     
     return res.data;
   } catch (err) {
@@ -29,7 +29,7 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     if (config.useMockData) {
       console.log("Using mock login data as fallback");
       const mockResponse = mockServices.login();
-      setToken(mockResponse.token);
+      setToken(mockResponse.access_token);
       return withMockDelay(mockResponse);
     }
     
@@ -40,10 +40,10 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
 export const signup = async (credentials: SignupCredentials): Promise<AuthResponse | null> => {
   try {
     const res = await axios.post<AuthResponse>(`${API_URL}/auth/signup`, credentials);
-    const { token, user } = res.data;
+    const { access_token, user } = res.data;
     
     // Store token
-    setToken(token);
+    setToken(access_token);
     
     return res.data;
   } catch (err) {
