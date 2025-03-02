@@ -31,6 +31,7 @@ interface GameState {
     correct: number;
     incorrect: number;
   };
+  totalScore: number; // New property for total score
   feedback: Feedback;
   showOptions: boolean;
   gameCompleted: boolean;
@@ -54,6 +55,17 @@ const styles = {
   gameTitle: {
     fontSize: '2.5rem',
     color: '#2c3e50',
+  },
+  totalScore: {
+    textAlign: 'center' as const,
+    fontSize: '1.5rem',
+    fontWeight: 'bold' as const,
+    color: '#2c3e50',
+    margin: '10px 0',
+    padding: '8px',
+    backgroundColor: '#f0f0f0',
+    borderRadius: '5px',
+    display: 'inline-block',
   },
   clueContainer: {
     backgroundColor: '#f8f9fa',
@@ -202,6 +214,7 @@ const Game: React.FC = () => {
       correct: 0,
       incorrect: 0,
     },
+    totalScore: 0, // Initialize total score
     feedback: {
       show: false,
       isCorrect: false,
@@ -264,20 +277,26 @@ const Game: React.FC = () => {
     
     if (isCorrect) {
       // Handle correct answer
-      setGameState(prev => ({
-        ...prev,
-        score: {
-          correct: prev.secondChance.used ? prev.score.correct + 0.5 : prev.score.correct + 1,
-          incorrect: prev.score.incorrect,
-        },
-        feedback: {
-          show: true,
-          isCorrect: true,
-          message: `Correct! ${currentDestination.city} is the answer.${prev.secondChance.used ? ' You earned 0.5 points for using a second chance.' : ''}`,
-          funFact: randomFunFact,
-        },
-        showOptions: false,
-      }));
+      setGameState(prev => {
+        // Calculate score change based on whether second chance was used
+        const scoreChange = prev.secondChance.used ? 0.5 : 1;
+        
+        return {
+          ...prev,
+          score: {
+            correct: prev.score.correct + 1, // Always increment by 1 for stats
+            incorrect: prev.score.incorrect,
+          },
+          totalScore: prev.totalScore + scoreChange, // Add to total score
+          feedback: {
+            show: true,
+            isCorrect: true,
+            message: `Correct! ${currentDestination.city} is the answer.${prev.secondChance.used ? ' You earned 0.5 points for using a second chance.' : ''}`,
+            funFact: randomFunFact,
+          },
+          showOptions: false,
+        };
+      });
       
       // Trigger confetti for correct answers
       showConfetti();
@@ -299,8 +318,9 @@ const Game: React.FC = () => {
           ...prev,
           score: {
             correct: prev.score.correct,
-            incorrect: prev.secondChance.used ? prev.score.incorrect + 0.5 : prev.score.incorrect + 1,
+            incorrect: prev.score.incorrect + 1, // Always increment by 1 for stats
           },
+          totalScore: prev.totalScore - 0.5, // Deduct 0.5 points for incorrect second try
           feedback: {
             show: true,
             isCorrect: false,
@@ -336,8 +356,9 @@ const Game: React.FC = () => {
       ...prev,
       score: {
         correct: prev.score.correct,
-        incorrect: prev.score.incorrect + 1,
+        incorrect: prev.score.incorrect + 1, // Increment incorrect count by 1
       },
+      // No change to total score when skipping (incorrect first try)
       feedback: {
         show: true,
         isCorrect: false,
@@ -438,6 +459,9 @@ const Game: React.FC = () => {
       <div style={styles.gameHeader}>
         <h1 style={styles.gameTitle}>Globetrotter</h1>
         <p>Guess the destination based on the clues below!</p>
+        <div style={styles.totalScore}>
+          Total Score: {gameState.totalScore.toFixed(1)}
+        </div>
       </div>
       
       <div style={styles.clueContainer}>
