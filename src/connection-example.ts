@@ -1,7 +1,7 @@
 // This is an example of how to fetch cities from your backend
 async function fetchCities(count: number = 100) {
   try {
-    const response = await fetch(`http://localhost:3001/cities?count=${count}`);
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/cities?count=${count}`);
     if (!response.ok) {
       throw new Error('Failed to fetch cities');
     }

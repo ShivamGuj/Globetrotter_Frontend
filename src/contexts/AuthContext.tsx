@@ -21,7 +21,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_URL = 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -90,7 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const getAuthHeader = () => {
     const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    return token ? { Authorization: `Bearer ${token}` } : { Authorization: '' };
   };
 
   return (

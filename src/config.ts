@@ -1,8 +1,12 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 const config = {
   // API base URL for backend requests
-  apiBaseUrl: 'http://localhost:3001',
+  apiBaseUrl: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
   // API URL (for any legacy code)
-  apiUrl: 'http://localhost:3001',
+  apiUrl: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
   // Enable to use mock data when API fails
   useMockData: true,
   // Delay in ms to simulate API response time when using mock data
