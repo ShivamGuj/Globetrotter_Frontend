@@ -3,7 +3,7 @@ import axios from 'axios';
 
 interface User {
   id?: number;
-  userId?: number; // Add this to handle the API response
+  userId?: number;
   username: string;
 }
 
@@ -49,9 +49,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string) => {
     try {
+      // Configure axios for CORS
       const response = await axios.post(`${API_URL}/auth/login`, {
         username,
         password,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        withCredentials: false // Change to true only if your backend supports credentials
       });
       
       const { access_token, userId, username: responseUsername } = response.data;
@@ -70,11 +77,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
+      // Detailed error logging
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.error('Response status:', error.response.status);
+          console.error('Response data:', error.response.data);
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error('No response received. CORS or network issue likely.');
+        }
+      }
+      
       return { 
         success: false, 
         message: axios.isAxiosError(error) && error.response?.data?.message 
           ? error.response.data.message 
-          : 'Invalid username or password'
+          : 'Login failed. Please check your connection and try again.'
       };
     }
   };
