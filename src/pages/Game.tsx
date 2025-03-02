@@ -280,6 +280,14 @@ const Game: React.FC = () => {
       setGameState(prev => {
         // Calculate score change based on whether second chance was used
         const scoreChange = prev.secondChance.used ? 0.5 : 1;
+        const newTotalScore = prev.totalScore + scoreChange;
+        
+        // Broadcast score update immediately - important for responsiveness
+        const updateEvent = new CustomEvent('globetrotterScoreUpdate', { 
+          detail: { score: newTotalScore } 
+        });
+        window.dispatchEvent(updateEvent);
+        localStorage.setItem('globetrotterScore', newTotalScore.toString());
         
         return {
           ...prev,
@@ -287,7 +295,7 @@ const Game: React.FC = () => {
             correct: prev.score.correct + 1, // Always increment by 1 for stats
             incorrect: prev.score.incorrect,
           },
-          totalScore: prev.totalScore + scoreChange, // Add to total score
+          totalScore: newTotalScore, // Add to total score
           feedback: {
             show: true,
             isCorrect: true,
@@ -314,21 +322,32 @@ const Game: React.FC = () => {
         }));
       } else {
         // Second chance already used or second wrong answer
-        setGameState(prev => ({
-          ...prev,
-          score: {
-            correct: prev.score.correct,
-            incorrect: prev.score.incorrect + 1, // Always increment by 1 for stats
-          },
-          totalScore: prev.totalScore - 0.5, // Deduct 0.5 points for incorrect second try
-          feedback: {
-            show: true,
-            isCorrect: false,
-            message: `Sorry! The correct answer is ${currentDestination.city}.${prev.secondChance.used ? ' You lost 0.5 points for an incorrect second try.' : ''}`,
-            funFact: randomFunFact,
-          },
-          showOptions: false,
-        }));
+        setGameState(prev => {
+          const newTotalScore = prev.totalScore - 0.5;
+          
+          // Broadcast the score update immediately for faster UI feedback
+          localStorage.setItem('globetrotterScore', newTotalScore.toString());
+          const updateEvent = new CustomEvent('scoreUpdated', { 
+            detail: { score: newTotalScore } 
+          });
+          window.dispatchEvent(updateEvent);
+          
+          return {
+            ...prev,
+            score: {
+              correct: prev.score.correct,
+              incorrect: prev.score.incorrect + 1, // Always increment by 1 for stats
+            },
+            totalScore: newTotalScore, // Deduct 0.5 points for incorrect second try
+            feedback: {
+              show: true,
+              isCorrect: false,
+              message: `Sorry! The correct answer is ${currentDestination.city}.${prev.secondChance.used ? ' You lost 0.5 points for an incorrect second try.' : ''}`,
+              funFact: randomFunFact,
+            },
+            showOptions: false,
+          };
+        });
       }
     }
   };
@@ -421,6 +440,33 @@ const Game: React.FC = () => {
       selectRandomDestination();
     }
   }, [cities]);
+
+  useEffect(() => {
+    // This function will broadcast the score to all interested components
+    const broadcastScore = (score: number) => {
+      // Update localStorage - use fixed precision to avoid float issues
+      localStorage.setItem('globetrotterScore', score.toString());
+      
+      console.log('Broadcasting score update:', score); // Debug log
+      
+      // Dispatch both events synchronously to ensure they're received
+      // Main event
+      const updateEvent = new CustomEvent('scoreUpdated', { 
+        detail: { score } 
+      });
+      window.dispatchEvent(updateEvent);
+      
+      // Game-specific event
+      const gameEvent = new CustomEvent('globetrotterScoreUpdate', { 
+        detail: { score } 
+      });
+      window.dispatchEvent(gameEvent);
+    };
+    
+    // When totalScore changes, broadcast the change
+    broadcastScore(gameState.totalScore);
+    
+  }, [gameState.totalScore]);
 
   if (loading) {
     return <div style={styles.loadingText}>Loading destinations...</div>;

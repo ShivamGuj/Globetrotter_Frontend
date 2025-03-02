@@ -1,3 +1,4 @@
+import React from "react";
 import { Invite } from "../types/invite";
 
 interface InviteCardProps {
@@ -6,7 +7,7 @@ interface InviteCardProps {
 
 const InviteCard: React.FC<InviteCardProps> = ({ invite }) => (
   <div className="border p-4 rounded shadow-md">
-    <p>Invite Link: <a href={invite.link} className="text-blue-600">{invite.link}</a></p>
+    <p>Invite Link: <a href={invite.invitationLink} className="text-blue-600">{invite.invitationLink}</a></p>
   </div>
 );
 
