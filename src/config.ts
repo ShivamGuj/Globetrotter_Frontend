@@ -1,9 +1,9 @@
 
 const config = {
   // API base URL for backend requests
-  apiBaseUrl: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  apiBaseUrl: import.meta.env.VITE_BACKEND_URL || "https://globetrotter-backend-sdio.onrender.com",
   // API URL (for any legacy code)
-  apiUrl: import.meta.env.VITE_BACKEND_URL || "http://localhost:5000",
+  apiUrl: import.meta.env.VITE_BACKEND_URL || "https://globetrotter-backend-sdio.onrender.com",
   // Enable to use mock data when API fails
   useMockData: true,
   // Delay in ms to simulate API response time when using mock data

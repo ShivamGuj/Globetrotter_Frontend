@@ -4,7 +4,7 @@ import { setToken, removeToken } from "../utils/tokenUtils";
 import { mockServices } from "../services/mockDataService";
 import config from "../config";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_BACKEND_URL || "https://globetrotter-backend-sdio.onrender.com";
 
 // Helper for simulating API delay with mock data
 const withMockDelay = <T>(data: T): Promise<T> => {

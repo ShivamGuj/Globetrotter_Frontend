@@ -2,7 +2,7 @@ import axios from "axios";
 import { User, UserProfile, UserUpdateData } from "../types/user";
 import { getToken } from "../utils/tokenUtils";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_BACKEND_URL || "https://globetrotter-backend-sdio.onrender.com";
 
 // Configure axios with auth token
 const authAxios = () => {

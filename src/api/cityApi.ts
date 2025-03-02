@@ -21,7 +21,8 @@ const withMockDelay = <T>(data: T): Promise<T> => {
 export const getGeneratedCities = async (count: number = config.defaultCityCount): Promise<CityData[]> => {
   try {
     const res = await api.get<CityData[]>(`/cities/generate/${count}`);
-    return res.data;
+    console.log('Generated cities:', res.data);
+    return res.data;    
   } catch (err) {
     console.error('Error generating cities:', err);
     
