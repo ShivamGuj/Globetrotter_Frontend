@@ -1,6 +1,3 @@
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const config = {
   // API base URL for backend requests
